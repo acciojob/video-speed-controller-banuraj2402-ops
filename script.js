@@ -1,9 +1,16 @@
-const inputs = document.querySelectorAll('.controls input');
+const player = document.querySelector('.player');
 
-    function handleUpdate() {
-      const suffix = this.dataset.sizing || '';
-      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix);
-    }
+
+const video = player.querySelector('.player__video'); 
+const toggle = player.querySelector('.toggle');
+const progress = player.querySelector('.progress');
+const progressBar = player.querySelector('.progress__filled');
+const skipButtons = player.querySelectorAll('[data-skip]');
+const ranges = player.querySelectorAll('.player__slider');
+
+
+// 2. Define Core Functions
+
 function togglePlay() {
     const method = video.paused ? 'play' : 'pause';
     video[method]();
@@ -28,10 +35,29 @@ function handleProgress() {
 }
 
 function scrub(e) {
+
     const scrubTimeFraction = e.offsetX / progress.offsetWidth;
+
     video.currentTime = scrubTimeFraction * video.duration;
 }
 
-	const skipButtons = player.querySelectorAll('[data-skip]');
-    inputs.forEach(input => input.addEventListener('change', handleUpdate));
-    inputs.forEach(input => input.addEventListener('mousemove', handleUpdate));
+
+video.addEventListener('click', togglePlay);
+toggle.addEventListener('click', togglePlay);
+
+
+video.addEventListener('play', updateToggleIcon);
+video.addEventListener('pause', updateToggleIcon);
+video.addEventListener('timeupdate', handleProgress);
+
+
+skipButtons.forEach(button => button.addEventListener('click', skip));
+
+ranges.forEach(range => range.addEventListener('change', handleRangeUpdate));
+ranges.forEach(range => range.addEventListener('mousemove', handleRangeUpdate));
+
+let mousedown = false;
+progress.addEventListener('click', scrub);
+progress.addEventListener('mousedown', () => mousedown = true);
+progress.addEventListener('mouseup', () => mousedown = false);
+progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
